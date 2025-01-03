@@ -1,30 +1,40 @@
-# Business Email Automation
+# Business Email Automation System
 
-An AI-powered system for finding businesses without websites and automatically sending personalized outreach emails.
+A powerful email automation system built with Flask and SendGrid for managing business leads and sending personalized emails.
 
 ## Features
 
-- **Lead Finding**
-  - Google Places API integration
-  - Yelp API integration
-  - Foursquare API integration
-  - Website existence verification
-  - Duplicate lead detection
+- Send personalized emails using templates
+- Lead management system
+- Email template management
+- Campaign tracking
+- Support for reply-to addresses
+- Detailed logging for troubleshooting
 
-- **Email Automation**
-  - SendGrid integration for reliable email delivery
-  - Personalized email templates
-  - Automated scheduling
-  - Email tracking
-  - Anti-spam compliance
-  - Unsubscribe handling
+## Prerequisites
 
-## Setup
+- Python 3.8+
+- SendGrid API key with Mail Send permissions
+- Verified sender email in SendGrid
+
+## Environment Variables
+
+Create a `.env` file with the following variables:
+
+```env
+SENDGRID_API_KEY=your_sendgrid_api_key
+SENDER_EMAIL=your_verified_sender_email
+SENDER_NAME=Your Name
+COMPANY_NAME=Your Company
+REPLY_TO_EMAIL=your_reply_to_email
+```
+
+## Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/business-email-automation.git
-cd business-email-automation
+git clone https://github.com/yourusername/business_email_automation.git
+cd business_email_automation
 ```
 
 2. Install dependencies:
@@ -32,84 +42,51 @@ cd business-email-automation
 pip install -r requirements.txt
 ```
 
-3. Create `.env` file:
+3. Set up your environment variables in `.env`
+
+4. Run the application:
 ```bash
-cp .env.example .env
+python src/app.py
 ```
 
-4. Add your API keys and configuration to `.env`:
-- Google Places API key
-- Yelp API key
-- Foursquare API key
-- SendGrid API key
-- Your business information
+The application will be available at http://localhost:5003
+
+## Project Structure
+
+```
+business_email_automation/
+├── src/
+│   ├── app.py              # Main Flask application
+│   ├── email_sender.py     # Email sending functionality
+│   ├── lead_finder.py      # Lead management
+│   ├── campaign_handler.py # Campaign management
+│   ├── templates/          # HTML templates
+│   └── static/             # Static files
+├── data/
+│   ├── leads.json         # Lead storage
+│   ├── templates/         # Email templates
+│   └── campaigns/         # Campaign data
+└── README.md
+```
 
 ## Usage
 
-### Running the System
+1. Add leads through the web interface
+2. Create email templates with personalization variables
+3. Send personalized emails to leads
+4. Track email campaigns and lead status
 
-1. Start the automated system:
-```bash
-python src/main.py
-```
+## Security Notes
 
-This will:
-- Find new leads daily at 9 AM
-- Send emails to new leads daily at 10 AM
+- Never commit your `.env` file
+- Keep your SendGrid API key secure
+- Use environment variables for sensitive data
+- Regularly rotate API keys
 
-### Manual Operation
+## Author
 
-You can also run individual components:
-
-```python
-from src.lead_finder import LeadFinder
-from src.email_sender import EmailSender
-
-# Find leads
-finder = LeadFinder()
-leads = finder.find_all_leads("Atlanta, GA")
-
-# Send emails
-sender = EmailSender()
-sender.send_email("business@example.com", lead_data)
-```
-
-## Configuration
-
-### Lead Finding
-- Adjust search radius in `lead_finder.py`
-- Modify location targeting
-- Add additional data sources
-
-### Email Templates
-- Customize email templates in `email_sender.py`
-- Add multiple template variations
-- Implement A/B testing
-
-## Compliance
-
-This system includes:
-- Unsubscribe mechanism
-- Rate limiting
-- Email sending delays
-- GDPR compliance features
-
-## Monitoring
-
-The system logs:
-- New leads found
-- Emails sent
-- Success/failure rates
-- API usage
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+Oscar Hernandez
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the LICENSE file for details

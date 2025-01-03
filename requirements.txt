@@ -1,7 +1,8 @@
-pandas==2.1.0
+Flask==3.0.0
+Flask-Cors==4.0.0
+sendgrid==6.10.0
 python-dotenv==1.0.0
 requests==2.31.0
-sendgrid==6.10.0
 google-api-python-client==2.97.0
 yelpapi==2.5.0
 python-whois==0.8.0

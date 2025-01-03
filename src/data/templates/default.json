@@ -1,0 +1,6 @@
+{
+    "id": "default_template",
+    "name": "Default Website Offer",
+    "subject": "Boost Your {{business_type}} Business with a Professional Website",
+    "content": "Hi {{business_name}},\n\nI noticed your successful {{business_type}} business in {{location}} while searching for local businesses, and I wanted to reach out because I saw you don't currently have a website.\n\nIn today's digital age, having a professional website can significantly impact your business by:\n- Attracting new customers through Google searches\n- Showcasing your services/products 24/7\n- Building credibility and trust\n- Reducing time spent answering common questions\n\nI specialize in creating beautiful, effective websites for {{business_type}} businesses in {{location}}. I'd love to discuss how we could create a website that:\n- Matches your brand perfectly\n- Is easy for you to update\n- Helps bring in more customers\n- Works great on mobile phones\n\nWould you be interested in a quick chat about how a website could help grow your business? I'm happy to share some examples of similar businesses I've helped.\n\nBest regards,\n{{sender_name}}\n{{company_name}}\n\nP.S. If you're interested, I can show you a free mock-up of how your website could look!"
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "campaign_1",
+    "name": "Test Campaign",
+    "template_id": "test_template",
+    "leads": [
+      {
+        "id": "test_1",
+        "business_name": "Test Business",
+        "business_type": "test",
+        "location": "Atlanta, GA",
+        "email": "webreachconnect@gmail.com"
+      }
+    ],
+    "start_date": "2025-01-03T02:51:21.491413",
+    "status": "active",
+    "sent_emails": [],
+    "responses": []
+  },
+  {
+    "id": "campaign_2",
+    "name": "Template Test",
+    "template_id": "business_template",
+    "leads": [
+      {
+        "id": "test_1",
+        "business_name": "Test Coffee Shop",
+        "business_type": "cafe",
+        "location": "Atlanta, GA",
+        "email": "webreachconnect@gmail.com"
+      }
+    ],
+    "start_date": "2025-01-03T02:59:39.439316",
+    "status": "active",
+    "sent_emails": [],
+    "responses": []
+  }
+]

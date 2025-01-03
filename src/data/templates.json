@@ -1,0 +1,42 @@
+[
+  {
+    "id": "restaurant",
+    "name": "Restaurant Website Offer",
+    "subject": "Boost {business_name}'s Online Presence with a Custom Restaurant Website",
+    "content": "Dear {business_name} team,\n\nI noticed your restaurant could benefit from a modern, professional website. As a specialist in restaurant websites, I can help you:\n\n✓ Showcase your menu beautifully\n✓ Accept online orders\n✓ Handle reservations automatically\n✓ Display customer reviews\n\nWould you like to see some examples of restaurant websites we've created?\n\nBest regards,\n{sender_name}\n{company_name}",
+    "category": "restaurant",
+    "active": true
+  },
+  {
+    "id": "salon",
+    "name": "Salon Website Offer",
+    "subject": "Help {business_name} Book More Clients with a Professional Website",
+    "content": "Hi {business_name} team,\n\nI specialize in creating websites for salons and noticed you might benefit from one. A custom website would help you:\n\n✓ Accept online bookings 24/7\n✓ Showcase your work with a photo gallery\n✓ List your services and prices\n✓ Collect client reviews\n\nWould you like to see how other salons have grown their business with our websites?\n\nBest regards,\n{sender_name}\n{company_name}",
+    "category": "salon",
+    "active": true
+  },
+  {
+    "id": "gym",
+    "name": "Fitness Center Website Offer",
+    "subject": "Grow {business_name}'s Member Base with a Professional Website",
+    "content": "Hello {business_name} team,\n\nAs a specialist in fitness center websites, I noticed you could benefit from a professional online presence. A custom website would help you:\n\n✓ Allow online class bookings\n✓ Showcase your facilities and trainers\n✓ Display membership options\n✓ Share success stories\n\nWould you like to see examples of fitness centers that have grown with our websites?\n\nBest regards,\n{sender_name}\n{company_name}",
+    "category": "gym",
+    "active": true
+  },
+  {
+    "id": "retail",
+    "name": "Retail Store Website Offer",
+    "subject": "Expand {business_name}'s Reach with an Online Store",
+    "content": "Hi {business_name} team,\n\nI help retail businesses expand their reach through professional websites. A custom online store would allow you to:\n\n✓ Sell products 24/7\n✓ Reach customers beyond your local area\n✓ Showcase your inventory\n✓ Build customer loyalty\n\nWould you like to see how other retailers have increased sales with our websites?\n\nBest regards,\n{sender_name}\n{company_name}",
+    "category": "retail",
+    "active": true
+  },
+  {
+    "id": "automotive",
+    "name": "Auto Shop Website Offer",
+    "subject": "Help {business_name} Get More Customers with a Professional Website",
+    "content": "Hello {business_name} team,\n\nI specialize in creating websites for auto shops and noticed you might benefit from one. A custom website would help you:\n\n✓ Allow online appointment booking\n✓ Display your services and pricing\n✓ Share customer reviews\n✓ Show before/after photos\n\nWould you like to see how other auto shops have grown their business with our websites?\n\nBest regards,\n{sender_name}\n{company_name}",
+    "category": "automotive",
+    "active": true
+  }
+]

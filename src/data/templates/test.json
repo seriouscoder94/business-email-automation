@@ -1,0 +1,6 @@
+{
+    "id": "test_template",
+    "name": "Test Email",
+    "subject": "Test Email from Web Reach Connect",
+    "content": "This is a test email from your automated email system.\n\nSender: Sam Parker\nCompany: Web Reach Connect\n\nIf you receive this email, the system is working correctly!"
+}

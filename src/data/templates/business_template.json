@@ -1,0 +1,6 @@
+{
+    "id": "business_template",
+    "name": "Professional Website Offer",
+    "subject": "Website Development for {{business_name}}",
+    "content": "Hello,\n\nI noticed {{business_name}} doesn't currently have a website. In today's digital age, this represents a significant business opportunity.\n\nAs a web developer specializing in {{business_type}} businesses, I can help you:\n\n1. Establish a professional online presence\n2. Appear in Google searches for '{{business_type}} in {{location}}'\n3. Convert online visitors into paying customers\n4. Automate appointment bookings and inquiries\n\nI'd like to offer you a free mock-up design showing how your website could look. No obligation - just a chance to see the possibilities for your business.\n\nIf you're interested, we can schedule a quick 15-minute Zoom call to discuss your business goals and I can show you some examples. Just reply with a few dates/times that work best for you.\n\nBest regards,\n{{sender_name}}\n{{company_name}}\n\nP.S. If you'd like to learn more about how websites impact {{business_type}} businesses, I'm happy to share additional industry research and statistics."
+}

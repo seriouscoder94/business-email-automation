@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Reach Connect - Email Automation</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .button-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="gradient-bg text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-4xl font-bold mb-4">Web Reach Connect</h1>
+                <p class="text-xl">Smart Email Automation for Business Growth</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Tabs -->
+        <div class="mb-8">
+            <nav class="flex space-x-4" aria-label="Tabs">
+                <button onclick="showTab('templates')" class="px-3 py-2 text-sm font-medium rounded-md" id="templates-tab">
+                    Email Templates
+                </button>
+                <button onclick="showTab('leads')" class="px-3 py-2 text-sm font-medium rounded-md" id="leads-tab">
+                    Lead Management
+                </button>
+                <button onclick="showTab('campaigns')" class="px-3 py-2 text-sm font-medium rounded-md" id="campaigns-tab">
+                    Campaigns
+                </button>
+            </nav>
+        </div>
+
+        <!-- Templates Tab -->
+        <div id="templates-section" class="tab-content">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Template cards will be added here -->
+            </div>
+        </div>
+
+        <!-- Leads Tab -->
+        <div id="leads-section" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Leads</h2>
+                    <div class="space-x-4">
+                        <button onclick="openAddLeadModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                            Add Lead
+                        </button>
+                        <button onclick="findLeads()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            Find New Leads
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Business Name
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Email
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Type
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="leads-table" class="bg-white divide-y divide-gray-200">
+                            <!-- Leads will be added here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Campaigns Tab -->
+        <div id="campaigns-section" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Campaigns</h2>
+                    <button onclick="startCampaign()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                        Start New Campaign
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Campaign Name
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Template
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Progress
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="campaigns-table" class="bg-white divide-y divide-gray-200">
+                            <!-- Campaigns will be added here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Send Email Modal -->
+    <div id="send-email-modal" class="fixed inset-0 bg-gray-500 bg-opacity-75 hidden">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white rounded-lg p-8 max-w-2xl w-full">
+                <h2 class="text-2xl font-bold mb-4">Send Email</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Select Template</label>
+                        <select id="template-select" onchange="previewTemplate(this.value)" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        </select>
+                    </div>
+                    <div id="email-preview" class="mt-4">
+                    </div>
+                    <div class="flex justify-end space-x-4">
+                        <button onclick="closeEmailModal()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
+                            Cancel
+                        </button>
+                        <button onclick="sendEmail()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            Send Email
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manual Lead Entry Modal -->
+    <div id="add-lead-modal" class="fixed inset-0 bg-gray-500 bg-opacity-75 hidden">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white rounded-lg p-8 max-w-2xl w-full">
+                <h2 class="text-2xl font-bold mb-4">Add New Lead</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Business Name</label>
+                        <input type="text" id="lead-name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="lead-email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Business Type</label>
+                        <select id="lead-type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <option value="restaurant">Restaurant</option>
+                            <option value="salon">Salon</option>
+                            <option value="gym">Gym/Fitness</option>
+                            <option value="retail">Retail Store</option>
+                            <option value="automotive">Auto Shop</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-end space-x-4">
+                        <button onclick="closeAddLeadModal()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
+                            Cancel
+                        </button>
+                        <button onclick="saveNewLead()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            Save & Send Email
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        const API_BASE_URL = 'http://localhost:5003';
+        // Global variables
+        let currentLead = null;
+        let currentTemplate = null;
+        let leads = [];
+        let templates = [];
+
+        // Tab Management
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            // Remove active class from all tabs
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.classList.remove('bg-gray-100', 'text-gray-900');
+                btn.classList.add('text-gray-500', 'hover:text-gray-700', 'hover:bg-gray-50');
+            });
+            
+            // Show selected tab content
+            document.getElementById(`${tabName}-section`).classList.remove('hidden');
+            // Activate selected tab
+            const activeTab = document.getElementById(`${tabName}-tab`);
+            activeTab.classList.remove('text-gray-500', 'hover:text-gray-700', 'hover:bg-gray-50');
+            activeTab.classList.add('bg-gray-100', 'text-gray-900');
+
+            // Load content based on tab
+            if (tabName === 'templates') loadTemplates();
+            else if (tabName === 'leads') loadLeads();
+            else if (tabName === 'campaigns') loadCampaigns();
+        }
+
+        // Templates
+        async function loadTemplates() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/templates`);
+                const templates = await response.json();
+                
+                const container = document.querySelector('#templates-section .grid');
+                container.innerHTML = templates.map(template => `
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="text-lg font-bold mb-2">${template.name}</h3>
+                        <p class="text-gray-600 mb-4">${template.subject}</p>
+                        <div class="space-y-2">
+                            <button onclick="previewTemplate('${template.id}')" 
+                                    class="w-full bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200">
+                                Preview
+                            </button>
+                            <button onclick="editTemplate('${template.id}')"
+                                    class="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200">
+                                Edit
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading templates:', error);
+            }
+        }
+
+        // Leads
+        async function loadLeads() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/leads`);
+                leads = await response.json();  // Store leads globally
+                
+                const tbody = document.getElementById('leads-table');
+                tbody.innerHTML = leads.map(lead => `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">${lead.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${lead.email}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${lead.type}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs rounded-full ${getStatusColor(lead.status)}">
+                                ${lead.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right">
+                            <button onclick="openEmailModal('${lead.id}')" class="text-blue-600 hover:text-blue-900">
+                                <i class="fas fa-envelope"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading leads:', error);
+            }
+        }
+
+        function getStatusColor(status) {
+            switch (status) {
+                case 'new': return 'bg-blue-100 text-blue-800';
+                case 'contacted': return 'bg-yellow-100 text-yellow-800';
+                case 'responded': return 'bg-green-100 text-green-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        // Campaigns
+        async function loadCampaigns() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/campaigns`);
+                const campaigns = await response.json();
+                
+                const tbody = document.getElementById('campaigns-table');
+                tbody.innerHTML = campaigns.map(campaign => `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">${campaign.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${campaign.template_name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs rounded-full ${getStatusColor(campaign.status)}">
+                                ${campaign.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-blue-600 h-2.5 rounded-full" style="width: ${campaign.progress}%"></div>
+                            </div>
+                            <span class="text-xs text-gray-500">${campaign.progress}%</span>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading campaigns:', error);
+            }
+        }
+
+        // Email Modal
+        function openEmailModal(leadId) {
+            console.log('Opening email modal for lead:', leadId);
+            currentLead = leads.find(l => l.id === leadId);
+            console.log('Found lead:', currentLead);
+            
+            if (!currentLead) {
+                console.error('Lead not found:', leadId);
+                return;
+            }
+            
+            document.getElementById('send-email-modal').classList.remove('hidden');
+            loadTemplateSelect();
+        }
+
+        async function saveNewLead() {
+            const name = document.getElementById('lead-name').value;
+            const email = document.getElementById('lead-email').value;
+            const type = document.getElementById('lead-type').value;
+
+            if (!name || !email) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/leads`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        email: email,
+                        type: type,
+                        status: 'new'
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    closeAddLeadModal();
+                    await loadLeads();  // Reload leads first
+                    
+                    // Find the newly created lead
+                    currentLead = leads.find(l => l.id === result.lead_id);
+                    console.log('New lead created:', currentLead);
+                    
+                    if (currentLead) {
+                        openEmailModal(currentLead.id);
+                    } else {
+                        console.error('Could not find newly created lead:', result.lead_id);
+                    }
+                } else {
+                    alert(result.error || 'Failed to add lead');
+                }
+            } catch (error) {
+                console.error('Error adding lead:', error);
+                alert('Error adding lead. Please try again.');
+            }
+        }
+
+        function closeEmailModal() {
+            document.getElementById('send-email-modal').classList.add('hidden');
+            currentTemplate = null;
+            // Don't reset currentLead here as we might need it later
+        }
+
+        async function loadTemplateSelect() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/templates`);
+                templates = await response.json();
+                
+                const select = document.getElementById('template-select');
+                select.innerHTML = templates.map(template => `
+                    <option value="${template.id}">${template.name}</option>
+                `).join('');
+                
+                // Load preview for first template
+                if (templates.length > 0) {
+                    await previewTemplate(templates[0].id);
+                }
+            } catch (error) {
+                console.error('Error loading templates:', error);
+            }
+        }
+
+        async function previewTemplate(templateId) {
+            try {
+                console.log('Previewing template:', templateId);
+                console.log('Current lead:', currentLead);
+                
+                // Set current template
+                currentTemplate = templates.find(t => t.id === templateId);
+                console.log('Selected template:', currentTemplate);
+                
+                if (!currentLead) {
+                    console.error('No lead selected');
+                    document.getElementById('email-preview').innerHTML = '<p class="text-red-600">Please select a lead first</p>';
+                    return;
+                }
+                
+                const response = await fetch(`${API_BASE_URL}/api/templates/${templateId}/preview`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        lead: currentLead
+                    })
+                });
+                
+                const preview = await response.json();
+                if (preview.subject && preview.content) {
+                    document.getElementById('email-preview').innerHTML = `
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Subject:</label>
+                                <div class="mt-1 p-2 bg-gray-50 rounded-md">${preview.subject}</div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Content:</label>
+                                <div class="mt-1 p-2 bg-gray-50 rounded-md whitespace-pre-wrap">${preview.content}</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('email-preview').innerHTML = '<p class="text-red-600">Error loading preview</p>';
+                }
+            } catch (error) {
+                console.error('Error previewing template:', error);
+                document.getElementById('email-preview').innerHTML = '<p class="text-red-600">Error loading preview</p>';
+            }
+        }
+
+        async function sendEmail() {
+            console.log('Sending email with lead:', currentLead);
+            console.log('Using template:', currentTemplate);
+            
+            if (!currentLead || !currentTemplate) {
+                console.error('Missing lead or template:', { currentLead, currentTemplate });
+                alert('Please select a template before sending');
+                return;
+            }
+            
+            try {
+                console.log('Sending email with:', {
+                    lead_id: currentLead.id,
+                    template_id: currentTemplate.id
+                });
+                
+                const response = await fetch(`${API_BASE_URL}/api/email/send`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        lead_id: currentLead.id,
+                        template_id: currentTemplate.id
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('Email sent successfully!');
+                    closeEmailModal();
+                    loadLeads();  // Refresh leads table
+                } else {
+                    alert(result.error || 'Failed to send email');
+                }
+            } catch (error) {
+                console.error('Error sending email:', error);
+                alert('Error sending email. Please try again.');
+            }
+        }
+
+        // Manual Lead Entry
+        function openAddLeadModal() {
+            document.getElementById('add-lead-modal').classList.remove('hidden');
+        }
+
+        function closeAddLeadModal() {
+            document.getElementById('add-lead-modal').classList.add('hidden');
+        }
+
+        // Initialize
+        showTab('templates');
+    </script>
+</body>
+</html>
