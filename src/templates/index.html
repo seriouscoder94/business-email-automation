@@ -195,12 +195,77 @@
 
     <!-- Scripts -->
     <script>
-        const API_BASE_URL = 'http://localhost:5003';
+        const API_BASE_URL = 'http://localhost:5008';
         // Global variables
         let currentLead = null;
         let currentTemplate = null;
         let leads = [];
-        let templates = [];
+        let templates = [
+            {
+                id: 'cold-outreach',
+                name: 'Cold Outreach',
+                subject: 'Ready to Boost {{business_name}} Online? 🌐',
+                content: `Hi {{owner_name}},
+
+I noticed that {{business_name}} doesn't have a website yet, and I wanted to reach out because I believe you're missing out on valuable opportunities to grow your business.
+
+Did you know that:
+• 97% of consumers search online for local businesses
+• 70% of customers visit a business's website before making a purchase
+• Businesses with websites are seen as 3x more credible by potential customers
+
+Having a professional website could help {{business_name}}:
+✓ Attract new customers 24/7
+✓ Build credibility in your local market
+✓ Showcase your products/services professionally
+✓ Save time by automating common customer questions
+
+Would you be open to a 15-minute chat about how a website could help {{business_name}} grow?
+
+Best regards,
+Sam`
+            },
+            {
+                id: 'follow-up',
+                name: 'Follow-up Email',
+                subject: 'Quick follow-up regarding {{business_name}}\'s online presence',
+                content: `Hi {{owner_name}},
+
+I wanted to follow up on my previous email about helping {{business_name}} establish a strong online presence.
+
+I understand you're busy running your business, but I truly believe a website could help you:
+• Attract more local customers
+• Save time answering common questions
+• Build trust with potential clients
+
+Would you be interested in a quick 15-minute call to discuss how we can help?
+
+Best regards,
+Sam`
+            },
+            {
+                id: 'meeting-request',
+                name: 'Meeting Request',
+                subject: 'Let\'s discuss {{business_name}}\'s digital growth',
+                content: `Hi {{owner_name}},
+
+Thank you for your interest in boosting {{business_name}}'s online presence.
+
+I'd love to schedule a brief call to:
+• Understand your business goals
+• Share relevant case studies
+• Discuss website options and pricing
+• Answer any questions you have
+
+Would any of these times work for you?
+• Tuesday at 10 AM
+• Wednesday at 2 PM
+• Thursday at 11 AM
+
+Best regards,
+Sam`
+            }
+        ];
 
         // Tab Management
         function showTab(tabName) {
@@ -227,29 +292,37 @@
 
         // Templates
         async function loadTemplates() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/templates`);
-                const templates = await response.json();
-                
-                const container = document.querySelector('#templates-section .grid');
-                container.innerHTML = templates.map(template => `
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <h3 class="text-lg font-bold mb-2">${template.name}</h3>
-                        <p class="text-gray-600 mb-4">${template.subject}</p>
+            const container = document.querySelector('#templates-section .grid');
+            container.innerHTML = templates.map(template => `
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-bold mb-2">${template.name}</h3>
+                    <p class="text-gray-600 mb-4">${template.subject}</p>
+                    <div class="mt-4 space-y-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <pre class="whitespace-pre-wrap text-sm">${template.content}</pre>
+                        </div>
                         <div class="space-y-2">
-                            <button onclick="previewTemplate('${template.id}')" 
+                            <button onclick="copyTemplate('${template.id}')" 
                                     class="w-full bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200">
-                                Preview
-                            </button>
-                            <button onclick="editTemplate('${template.id}')"
-                                    class="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200">
-                                Edit
+                                <i class="fas fa-copy mr-2"></i>Copy Template
                             </button>
                         </div>
                     </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading templates:', error);
+                </div>
+            `).join('');
+        }
+
+        // Copy template to clipboard
+        function copyTemplate(templateId) {
+            const template = templates.find(t => t.id === templateId);
+            if (template) {
+                const fullText = `Subject: ${template.subject}\n\n${template.content}`;
+                navigator.clipboard.writeText(fullText).then(() => {
+                    showNotification('Template copied to clipboard!', 'success');
+                }).catch(err => {
+                    console.error('Failed to copy template:', err);
+                    showNotification('Failed to copy template', 'error');
+                });
             }
         }
 
@@ -331,8 +404,95 @@
                 return;
             }
             
+            // Populate template select
+            const templateSelect = document.getElementById('template-select');
+            templateSelect.innerHTML = `
+                <option value="">Select a template...</option>
+                ${templates.map(t => `<option value="${t.id}">${t.name}</option>`).join('')}
+            `;
+
+            // Show modal
             document.getElementById('send-email-modal').classList.remove('hidden');
-            loadTemplateSelect();
+        }
+
+        function closeEmailModal() {
+            document.getElementById('send-email-modal').classList.add('hidden');
+            currentLead = null;
+            currentTemplate = null;
+        }
+
+        function previewTemplate(templateId) {
+            const template = templates.find(t => t.id === templateId);
+            if (!template || !currentLead) return;
+
+            currentTemplate = template;
+            const preview = document.getElementById('email-preview');
+            
+            // Replace placeholders with actual values
+            let subject = template.subject
+                .replace(/{{business_name}}/g, currentLead.name)
+                .replace(/{{owner_name}}/g, currentLead.contact || 'Owner');
+                
+            let content = template.content
+                .replace(/{{business_name}}/g, currentLead.name)
+                .replace(/{{owner_name}}/g, currentLead.contact || 'Owner');
+
+            preview.innerHTML = `
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="font-medium mb-2">Subject: ${subject}</div>
+                    <pre class="whitespace-pre-wrap text-sm">${content}</pre>
+                </div>
+            `;
+        }
+
+        async function sendEmail() {
+            if (!currentLead || !currentTemplate) {
+                showNotification('Please select a template first', 'error');
+                return;
+            }
+
+            try {
+                // Replace placeholders in template
+                const subject = currentTemplate.subject
+                    .replace(/{{business_name}}/g, currentLead.name)
+                    .replace(/{{owner_name}}/g, currentLead.contact || 'Owner');
+                
+                const content = currentTemplate.content
+                    .replace(/{{business_name}}/g, currentLead.name)
+                    .replace(/{{owner_name}}/g, currentLead.contact || 'Owner');
+
+                const response = await fetch('http://localhost:5008/api/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        to_email: currentLead.email,
+                        subject: subject,
+                        content: content
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showNotification('Email sent successfully!', 'success');
+                    closeEmailModal();
+                } else {
+                    throw new Error(result.error || 'Failed to send email');
+                }
+            } catch (error) {
+                console.error('Error sending email:', error);
+                showNotification(error.message || 'Failed to send email', 'error');
+            }
+        }
+
+        // Manual Lead Entry
+        function openAddLeadModal() {
+            document.getElementById('add-lead-modal').classList.remove('hidden');
+        }
+
+        function closeAddLeadModal() {
+            document.getElementById('add-lead-modal').classList.add('hidden');
         }
 
         async function saveNewLead() {
@@ -382,127 +542,15 @@
             }
         }
 
-        function closeEmailModal() {
-            document.getElementById('send-email-modal').classList.add('hidden');
-            currentTemplate = null;
-            // Don't reset currentLead here as we might need it later
-        }
-
-        async function loadTemplateSelect() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/templates`);
-                templates = await response.json();
-                
-                const select = document.getElementById('template-select');
-                select.innerHTML = templates.map(template => `
-                    <option value="${template.id}">${template.name}</option>
-                `).join('');
-                
-                // Load preview for first template
-                if (templates.length > 0) {
-                    await previewTemplate(templates[0].id);
-                }
-            } catch (error) {
-                console.error('Error loading templates:', error);
-            }
-        }
-
-        async function previewTemplate(templateId) {
-            try {
-                console.log('Previewing template:', templateId);
-                console.log('Current lead:', currentLead);
-                
-                // Set current template
-                currentTemplate = templates.find(t => t.id === templateId);
-                console.log('Selected template:', currentTemplate);
-                
-                if (!currentLead) {
-                    console.error('No lead selected');
-                    document.getElementById('email-preview').innerHTML = '<p class="text-red-600">Please select a lead first</p>';
-                    return;
-                }
-                
-                const response = await fetch(`${API_BASE_URL}/api/templates/${templateId}/preview`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        lead: currentLead
-                    })
-                });
-                
-                const preview = await response.json();
-                if (preview.subject && preview.content) {
-                    document.getElementById('email-preview').innerHTML = `
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Subject:</label>
-                                <div class="mt-1 p-2 bg-gray-50 rounded-md">${preview.subject}</div>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Content:</label>
-                                <div class="mt-1 p-2 bg-gray-50 rounded-md whitespace-pre-wrap">${preview.content}</div>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    document.getElementById('email-preview').innerHTML = '<p class="text-red-600">Error loading preview</p>';
-                }
-            } catch (error) {
-                console.error('Error previewing template:', error);
-                document.getElementById('email-preview').innerHTML = '<p class="text-red-600">Error loading preview</p>';
-            }
-        }
-
-        async function sendEmail() {
-            console.log('Sending email with lead:', currentLead);
-            console.log('Using template:', currentTemplate);
-            
-            if (!currentLead || !currentTemplate) {
-                console.error('Missing lead or template:', { currentLead, currentTemplate });
-                alert('Please select a template before sending');
-                return;
-            }
-            
-            try {
-                console.log('Sending email with:', {
-                    lead_id: currentLead.id,
-                    template_id: currentTemplate.id
-                });
-                
-                const response = await fetch(`${API_BASE_URL}/api/email/send`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        lead_id: currentLead.id,
-                        template_id: currentTemplate.id
-                    })
-                });
-                
-                const result = await response.json();
-                if (result.success) {
-                    alert('Email sent successfully!');
-                    closeEmailModal();
-                    loadLeads();  // Refresh leads table
-                } else {
-                    alert(result.error || 'Failed to send email');
-                }
-            } catch (error) {
-                console.error('Error sending email:', error);
-                alert('Error sending email. Please try again.');
-            }
-        }
-
-        // Manual Lead Entry
-        function openAddLeadModal() {
-            document.getElementById('add-lead-modal').classList.remove('hidden');
-        }
-
-        function closeAddLeadModal() {
-            document.getElementById('add-lead-modal').classList.add('hidden');
+        // Notification helper
+        function showNotification(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg text-white ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
 
         // Initialize

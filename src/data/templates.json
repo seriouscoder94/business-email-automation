@@ -32,6 +32,70 @@
     "active": true
   },
   {
+    "id": "auto_repair",
+    "name": "Auto Repair Shop Website Offer",
+    "subject": "Help {business_name} Get More Service Appointments Online",
+    "content": "Hi {business_name} team,\n\nI create websites specifically for auto repair shops and noticed you could benefit from one. A professional website would help you:\n\n✓ Accept service appointments online\n✓ List your services and specialties\n✓ Share customer testimonials\n✓ Display before/after repair photos\n✓ Send automatic service reminders\n\nWould you like to see how other auto shops have increased their business with our websites?\n\nBest regards,\n{sender_name}\n{company_name}",
+    "category": "automotive",
+    "active": true
+  },
+  {
+    "id": "dental",
+    "name": "Dental Practice Website Offer",
+    "subject": "Modernize {business_name}'s Patient Experience with a Professional Website",
+    "content": "Dear {business_name} team,\n\nI specialize in creating websites for dental practices and noticed you could benefit from one. A modern website would help you:\n\n✓ Allow patients to book appointments online\n✓ Showcase your services and technology\n✓ Share patient testimonials\n✓ Provide educational resources\n✓ Handle insurance inquiries\n\nWould you like to see examples of dental practices that have grown with our websites?\n\nBest regards,\n{sender_name}\n{company_name}",
+    "category": "healthcare",
+    "active": true
+  },
+  {
+    "id": "real_estate",
+    "name": "Real Estate Agent Website Offer",
+    "subject": "Showcase {business_name}'s Properties with a Professional Website",
+    "content": "Hello {business_name},\n\nAs a specialist in real estate websites, I can help you stand out in the competitive market. A custom website would allow you to:\n\n✓ Display property listings beautifully\n✓ Integrate with MLS\n✓ Accept viewing appointments\n✓ Share virtual tours\n✓ Generate leads 24/7\n\nWould you like to see how other agents have increased their listings with our websites?\n\nBest regards,\n{sender_name}\n{company_name}",
+    "category": "real_estate",
+    "active": true
+  },
+  {
+    "id": "law_firm",
+    "name": "Law Firm Website Offer",
+    "subject": "Enhance {business_name}'s Professional Presence Online",
+    "content": "Dear {business_name} team,\n\nI create professional websites for law firms and noticed you could benefit from one. A custom website would help you:\n\n✓ Showcase your practice areas\n✓ Share case results and testimonials\n✓ Accept consultation bookings\n✓ Provide legal resources\n✓ Generate qualified leads\n\nWould you like to see examples of law firms that have grown with our websites?\n\nBest regards,\n{sender_name}\n{company_name}",
+    "category": "legal",
+    "active": true
+  },
+  {
+    "id": "construction",
+    "name": "Construction Company Website Offer",
+    "subject": "Showcase {business_name}'s Projects with a Professional Website",
+    "content": "Hi {business_name} team,\n\nI specialize in websites for construction companies and noticed you could benefit from one. A custom website would help you:\n\n✓ Display your project portfolio\n✓ Share client testimonials\n✓ List your services and specialties\n✓ Accept project inquiries\n✓ Showcase your team\n\nWould you like to see how other construction companies have grown with our websites?\n\nBest regards,\n{sender_name}\n{company_name}",
+    "category": "construction",
+    "active": true
+  },
+  {
+    "id": "photography",
+    "name": "Photography Studio Website Offer",
+    "subject": "Showcase {business_name}'s Portfolio with a Beautiful Website",
+    "content": "Hello {business_name},\n\nI create stunning websites for photographers and noticed you could benefit from one. A custom website would allow you to:\n\n✓ Display your portfolio beautifully\n✓ Accept session bookings online\n✓ List your packages and prices\n✓ Share client testimonials\n✓ Sell prints online\n\nWould you like to see how other photographers have grown with our websites?\n\nBest regards,\n{sender_name}\n{company_name}",
+    "category": "photography",
+    "active": true
+  },
+  {
+    "id": "pet_grooming",
+    "name": "Pet Grooming Website Offer",
+    "subject": "Help {business_name} Book More Pet Clients Online",
+    "content": "Hi {business_name} team,\n\nI create websites specifically for pet groomers and noticed you could benefit from one. A custom website would help you:\n\n✓ Accept grooming appointments online\n✓ Showcase before/after photos\n✓ List your services and prices\n✓ Share client testimonials\n✓ Send appointment reminders\n\nWould you like to see how other groomers have grown with our websites?\n\nBest regards,\n{sender_name}\n{company_name}",
+    "category": "pet_services",
+    "active": true
+  },
+  {
+    "id": "bakery",
+    "name": "Bakery Website Offer",
+    "subject": "Help {business_name} Take Orders Online with a Custom Website",
+    "content": "Dear {business_name} team,\n\nI create websites specifically for bakeries and noticed you could benefit from one. A custom website would help you:\n\n✓ Accept cake/custom orders online\n✓ Showcase your creations\n✓ Display your menu and prices\n✓ Share customer reviews\n✓ Handle special event orders\n\nWould you like to see how other bakeries have grown with our websites?\n\nBest regards,\n{sender_name}\n{company_name}",
+    "category": "food",
+    "active": true
+  },
+  {
     "id": "automotive",
     "name": "Auto Shop Website Offer",
     "subject": "Help {business_name} Get More Customers with a Professional Website",

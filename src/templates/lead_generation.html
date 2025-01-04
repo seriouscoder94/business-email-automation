@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Finder - Find Local Businesses Without Websites</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- HubSpot Form Script -->
+    <script charset="utf-8" type="text/javascript" src="//js.hsforms.net/forms/embed/v2.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Hero Section -->
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-extrabold text-gray-900 sm:text-5xl mb-4">
+                    Get Your Free Website Consultation
+                </h1>
+                <p class="text-xl text-gray-600">
+                    Discover how a modern website can transform your business
+                </p>
+            </div>
+
+            <!-- Benefits Section -->
+            <div class="bg-white rounded-lg shadow-lg p-8 mb-12">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">What You'll Get:</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <svg class="h-6 w-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-medium text-gray-900">Free Website Analysis</h3>
+                            <p class="mt-2 text-gray-600">Get expert insights on how a website can benefit your specific business</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <svg class="h-6 w-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-medium text-gray-900">Custom Strategy</h3>
+                            <p class="mt-2 text-gray-600">Personalized recommendations for your industry and business goals</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <svg class="h-6 w-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-medium text-gray-900">Cost Breakdown</h3>
+                            <p class="mt-2 text-gray-600">Transparent pricing and ROI analysis for your website investment</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <svg class="h-6 w-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-medium text-gray-900">Competitor Analysis</h3>
+                            <p class="mt-2 text-gray-600">See how you can stand out from your local competition online</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Section -->
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Get Your Free Consultation</h2>
+                <div id="hubspot-form"></div>
+            </div>
+
+            <!-- Trust Indicators -->
+            <div class="mt-12 text-center">
+                <p class="text-sm text-gray-500">
+                    Trusted by local businesses since 2023 • 100% Free Consultation • No Obligation
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            hbspt.forms.create({
+                region: "na1",
+                portalId: "YOUR_HUBSPOT_PORTAL_ID",
+                formId: "YOUR_HUBSPOT_FORM_ID",
+                target: "#hubspot-form",
+                onFormSubmitted: function($form) {
+                    Swal.fire({
+                        title: 'Thank You!',
+                        text: 'We\'ll be in touch within 24 hours with your free consultation.',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>

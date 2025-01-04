@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Sam - Business Discovery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/agent.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>AI Agent Sam</h1>
+            <p>Discover and connect with businesses that need your services</p>
+        </header>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <!-- Search Configuration -->
+            <div class="input-group">
+                <label for="region">Region</label>
+                <select id="region" class="input-field">
+                    <option value="atlanta">Atlanta, GA</option>
+                    <option value="miami">Miami, FL</option>
+                    <option value="dallas">Dallas, TX</option>
+                    <option value="custom">Custom Location...</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="industry">Industry</label>
+                <select id="industry" class="input-field">
+                    <option value="restaurant">Restaurants</option>
+                    <option value="retail">Retail Stores</option>
+                    <option value="salon">Beauty & Wellness</option>
+                    <option value="custom">Custom Industry...</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="keywords">Keywords (comma-separated)</label>
+                <input type="text" id="keywords" class="input-field" placeholder="e.g., pizza, cafe, boutique">
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="button-group">
+            <button id="searchBtn" class="button button-primary">
+                <span class="spinner"></span>
+                <span>Search for Businesses</span>
+            </button>
+            <button id="checkWebsiteBtn" class="button button-primary">
+                <span class="spinner"></span>
+                <span>Check Websites</span>
+            </button>
+            <button id="enrichDataBtn" class="button button-primary">
+                <span class="spinner"></span>
+                <span>Enrich Data</span>
+            </button>
+            <button id="exportBtn" class="button button-primary">
+                <span class="spinner"></span>
+                <span>Export Leads</span>
+            </button>
+        </div>
+
+        <!-- Progress Tracker -->
+        <div class="progress-tracker">
+            <div class="progress-step" data-step="1">
+                <div class="step-indicator">1</div>
+                <span>Searching</span>
+            </div>
+            <div class="progress-step" data-step="2">
+                <div class="step-indicator">2</div>
+                <span>Verifying</span>
+            </div>
+            <div class="progress-step" data-step="3">
+                <div class="step-indicator">3</div>
+                <span>Enriching</span>
+            </div>
+            <div class="progress-step" data-step="4">
+                <div class="step-indicator">4</div>
+                <span>Completed</span>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-group">
+                <label for="regionFilter">Filter by Region:</label>
+                <select id="regionFilter" class="input-field">
+                    <option value="">All Regions</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="industryFilter">Filter by Industry:</label>
+                <select id="industryFilter" class="input-field">
+                    <option value="">All Industries</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="websiteFilter">Website Status:</label>
+                <select id="websiteFilter" class="input-field">
+                    <option value="">All</option>
+                    <option value="no">No Website</option>
+                    <option value="yes">Has Website</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Results Table -->
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Business Name</th>
+                    <th>Industry</th>
+                    <th>Region</th>
+                    <th>Contact Info</th>
+                    <th>Website Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="resultsBody">
+                <!-- Results will be populated here -->
+            </tbody>
+        </table>
+
+        <!-- Toast Notifications -->
+        <div id="toast" class="toast">
+            <span class="toast-message"></span>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/agent.js') }}"></script>
+</body>
+</html>

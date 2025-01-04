@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Templates Reference</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .template-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2563eb;
+            text-align: center;
+        }
+        h2 {
+            color: #1e40af;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .template {
+            background: #f8fafc;
+            padding: 20px;
+            margin: 10px 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+        }
+        .template-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #4b5563;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: #ffffff;
+            padding: 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+        }
+        .copy-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        .copy-btn:hover {
+            background: #1e40af;
+        }
+    </style>
+</head>
+<body>
+    <h1>Email Templates Reference</h1>
+    
+    <!-- NO WEBSITE TEMPLATES -->
+    <div class="template-section">
+        <h2>🚫 No Website Templates</h2>
+        
+        <!-- General Template -->
+        <div class="template">
+            <div class="template-header">General Business - No Website</div>
+            <button class="copy-btn" onclick="copyTemplate('no-website-general')">Copy Template</button>
+            <pre id="no-website-general">Subject: Ready to Boost {{business_name}} Online? 🌐
+
+Hi {{owner_name}},
+
+I noticed that {{business_name}} doesn't have a website yet, and I wanted to reach out because I believe you're missing out on valuable opportunities to grow your business.
+
+Did you know that:
+• 97% of consumers search online for local businesses
+• 70% of customers visit a business's website before making a purchase
+• Businesses with websites are seen as 3x more credible by potential customers
+
+Having a professional website could help {{business_name}}:
+✓ Attract new customers 24/7
+✓ Build credibility in your local market
+✓ Showcase your products/services professionally
+✓ Save time by automating common customer questions
+
+We specialize in creating simple, effective websites that:
+• Are easy to update yourself
+• Look great on all devices
+• Load quickly
+• Connect to your social media
+• Help you appear in local searches
+
+Would you be open to a 15-minute chat about how a website could help {{business_name}} grow? I'd love to learn more about your business goals and share some examples of how other local businesses have benefited from their first website.
+
+Book a free consultation here: [Insert link]
+
+Best regards,
+{{sender_name}}
+
+P.S. If you book this week, I'll include a free local SEO audit to help your business get found online!</pre>
+        </div>
+    </div>
+
+    <!-- WEBSITE TOUCHUP TEMPLATES -->
+    <div class="template-section">
+        <h2>🔄 Website Touch-up Templates</h2>
+        
+        <!-- General Template -->
+        <div class="template">
+            <div class="template-header">General Business - Website Enhancement</div>
+            <button class="copy-btn" onclick="copyTemplate('website-touchup-general')">Copy Template</button>
+            <pre id="website-touchup-general">Subject: I Have Some Ideas to Enhance {{business_name}}'s Website 🚀
+
+Hi {{owner_name}},
+
+I just visited {{business_name}}'s website and was impressed by what you've built. I particularly liked [specific feature] and how you've [positive observation].
+
+As someone who specializes in website optimization, I noticed a few opportunities to enhance your site's performance and user experience:
+
+Current Website Strengths:
+✓ [Specific positive feature]
+✓ [Another positive aspect]
+✓ [Third positive point]
+
+Potential Enhancements:
+1. User Experience
+   • Streamline the customer journey
+   • Optimize for mobile devices
+   • Improve page load speed
+
+2. Modern Features
+   • Smart booking/payment systems
+   • Customer account portal
+   • Automated email notifications
+
+3. Business Growth
+   • SEO optimization
+   • Analytics dashboard
+   • Marketing integrations
+
+Would you be interested in a free website audit? I'll analyze:
+• Mobile responsiveness
+• Page load speeds
+• SEO performance
+• Conversion optimization
+• Security status
+
+I've helped other local businesses achieve:
+• 40% faster load times
+• 55% more mobile conversions
+• 70% increase in online inquiries
+
+Let's schedule a 15-minute call to review your goals and explore how these improvements could benefit {{business_name}}.
+
+Book your free website audit here: [Insert link]
+
+Best regards,
+{{sender_name}}
+
+P.S. The audit is completely free, and you'll receive a detailed report regardless of whether we work together.</pre>
+        </div>
+    </div>
+
+    <script>
+        function copyTemplate(id) {
+            const template = document.getElementById(id);
+            navigator.clipboard.writeText(template.textContent)
+                .then(() => {
+                    const btn = template.previousElementSibling;
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Copied!';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy:', err);
+                });
+        }
+    </script>
+</body>
+</html>

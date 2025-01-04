@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Sam - Business Lead Finder</title>
+    
+    <!-- Third-party CDN imports -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Tippy.js and dependencies -->
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/light.css"/>
+    
+    <!-- XLSX for export functionality -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.17.0/dist/xlsx.full.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script>
+        // Mock data for testing
+        const MOCK_DATA = {
+            businesses: [
+                {
+                    name: "Test Business 1",
+                    address: "123 Main St, Test City",
+                    business_type: "restaurant",
+                    phone: "(555) 555-1234",
+                    website: "",
+                    email: "",
+                    has_website: false,
+                    discovery_date: new Date().toISOString()
+                },
+                {
+                    name: "Test Business 2",
+                    address: "456 Oak Ave, Test City",
+                    business_type: "retail",
+                    phone: "(555) 555-5678",
+                    website: "http://testbusiness2.com",
+                    email: "contact@testbusiness2.com",
+                    has_website: true,
+                    discovery_date: new Date().toISOString()
+                }
+            ]
+        };
+
+        // API Configuration
+        const API_BASE_URL = 'http://localhost:5008/api';
+        const USE_MOCK_DATA = true; // Set to false to use real API
+
+        // Global state
+        let isRunning = false;
+        let foundBusinesses = [];
+        let progress = 0;
+
+        // Unified API functions
+        async function fetchWithTimeout(url, options = {}, timeout = 30000) {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                });
+                clearTimeout(id);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+                
+                return response;
+            } catch (error) {
+                clearTimeout(id);
+                if (error.name === 'AbortError') {
+                    throw new Error('Request timed out. Please try again.');
+                }
+                throw error;
+            }
+        }
+
+        // Core business operations with fallbacks
+        async function performBusinessSearch(location, businessType, radius = 50) {
+            if (USE_MOCK_DATA) {
+                console.log('Using mock data for search');
+                return {
+                    success: true,
+                    businesses: MOCK_DATA.businesses.filter(b => 
+                        b.business_type.toLowerCase() === businessType.toLowerCase()
+                    )
+                };
+            }
+
+            try {
+                const params = new URLSearchParams({
+                    type: businessType,
+                    location: location,
+                    radius: radius.toString()
+                });
+                
+                const response = await fetchWithTimeout(
+                    `${API_BASE_URL}/discover-businesses?${params}`,
+                    { method: 'GET' }
+                );
+                return await response.json();
+            } catch (error) {
+                console.warn('API error, using mock data:', error);
+                return {
+                    success: true,
+                    businesses: MOCK_DATA.businesses
+                };
+            }
+        }
+
+        async function checkWebsitesForBusinesses(businesses) {
+            if (USE_MOCK_DATA) {
+                console.log('Using mock data for website check');
+                return {
+                    success: true,
+                    results: businesses.map(b => ({
+                        ...b,
+                        website_status: b.has_website ? 'active' : 'not_found',
+                        last_checked: new Date().toISOString()
+                    }))
+                };
+            }
+
+            try {
+                const response = await fetchWithTimeout(
+                    `${API_BASE_URL}/check-websites`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ businesses })
+                    }
+                );
+                return await response.json();
+            } catch (error) {
+                console.warn('API error, using mock data:', error);
+                return {
+                    success: true,
+                    results: businesses.map(b => ({
+                        ...b,
+                        website_status: 'unknown',
+                        last_checked: new Date().toISOString()
+                    }))
+                };
+            }
+        }
+
+        async function enrichBusinessData(businesses) {
+            if (USE_MOCK_DATA) {
+                console.log('Using mock data for enrichment');
+                return {
+                    success: true,
+                    results: businesses.map(b => ({
+                        ...b,
+                        employees: Math.floor(Math.random() * 50) + 1,
+                        revenue: '$1M - $5M',
+                        year_founded: 2010 + Math.floor(Math.random() * 13)
+                    }))
+                };
+            }
+
+            try {
+                const response = await fetchWithTimeout(
+                    `${API_BASE_URL}/enrich-data`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ businesses })
+                    }
+                );
+                return await response.json();
+            } catch (error) {
+                console.warn('API error, using mock data:', error);
+                return {
+                    success: true,
+                    results: businesses
+                };
+            }
+        }
+
+        async function exportBusinessData(businesses, format = 'csv') {
+            if (USE_MOCK_DATA) {
+                console.log('Using mock data for export');
+                return {
+                    success: true,
+                    message: `Exported ${businesses.length} businesses as ${format}`,
+                    download_url: '#'
+                };
+            }
+
+            try {
+                const response = await fetchWithTimeout(
+                    `${API_BASE_URL}/export-data`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ businesses, format })
+                    }
+                );
+                return await response.json();
+            } catch (error) {
+                console.warn('API error, using mock data:', error);
+                return {
+                    success: true,
+                    message: 'Export completed (mock)',
+                    download_url: '#'
+                };
+            }
+        }
+
+        // Task execution helpers
+        async function executeTask(taskName, operation, preCheck = true) {
+            if (isRunning) {
+                showNotification(`A task is already in progress`, 'warning');
+                return null;
+            }
+
+            if (preCheck && (!foundBusinesses || foundBusinesses.length === 0)) {
+                showNotification('No businesses found. Please search first.', 'error');
+                return null;
+            }
+
+            try {
+                isRunning = true;
+                updateProgressStep(taskName);
+                addActivityLog(`Starting ${taskName}...`, 'info');
+                
+                const result = await operation();
+                
+                if (!result.success) {
+                    throw new Error(result.error || `${taskName} failed`);
+                }
+                
+                addActivityLog(`${taskName} completed successfully!`, 'success');
+                showNotification(`${taskName} completed!`, 'success');
+                
+                return result;
+                
+            } catch (error) {
+                console.error(`${taskName} error:`, error);
+                addActivityLog(`${taskName} failed: ${error.message}`, 'error');
+                showNotification(error.message, 'error');
+                return null;
+            } finally {
+                isRunning = false;
+            }
+        }
+
+        // UI Action handlers
+        async function startSearch() {
+            const region = document.getElementById('region').value;
+            const businessType = document.getElementById('business-type').value;
+
+            if (!region || !businessType) {
+                showNotification('Please fill in both region and business type', 'error');
+                return;
+            }
+
+            const result = await executeTask(
+                'Business Search',
+                async () => {
+                    // Clear previous results
+                    const resultsContainer = document.getElementById('results-container');
+                    if (resultsContainer) {
+                        resultsContainer.innerHTML = '';
+                    }
+                    foundBusinesses = [];
+                    
+                    const results = await performBusinessSearch(region, businessType);
+                    
+                    if (results.businesses && results.businesses.length > 0) {
+                        foundBusinesses = results.businesses;
+                        results.businesses.forEach(business => addBusinessResult(business));
+                    }
+                    
+                    return results;
+                },
+                false // Don't check for existing businesses
+            );
+
+            if (result) {
+                updateProgressStep('websites');
+            }
+        }
+
+        async function checkWebsites() {
+            const result = await executeTask(
+                'Website Check',
+                async () => await checkWebsitesForBusinesses(foundBusinesses)
+            );
+            
+            if (result) {
+                updateProgressStep('enrich');
+            }
+        }
+
+        async function enrichData() {
+            const result = await executeTask(
+                'Data Enrichment',
+                async () => await enrichBusinessData(foundBusinesses)
+            );
+            
+            if (result) {
+                updateProgressStep('export');
+            }
+        }
+
+        async function exportLeads(format = 'csv') {
+            await executeTask(
+                'Export Leads',
+                async () => await exportBusinessData(foundBusinesses, format)
+            );
+        }
+
+        async function startAgent() {
+            const region = document.getElementById('region').value;
+            const businessType = document.getElementById('business-type').value;
+
+            if (!region || !businessType) {
+                showNotification('Please fill in both region and business type', 'error');
+                return;
+            }
+
+            try {
+                // Start with search
+                const searchResult = await executeTask(
+                    'Business Search',
+                    async () => {
+                        const results = await performBusinessSearch(region, businessType);
+                        if (results.businesses && results.businesses.length > 0) {
+                            foundBusinesses = results.businesses;
+                            results.businesses.forEach(business => addBusinessResult(business));
+                        }
+                        return results;
+                    },
+                    false
+                );
+                
+                if (!searchResult) return;
+
+                // Check websites
+                const websiteResult = await executeTask(
+                    'Website Check',
+                    async () => await checkWebsitesForBusinesses(foundBusinesses)
+                );
+                
+                if (!websiteResult) return;
+
+                // Enrich data
+                const enrichResult = await executeTask(
+                    'Data Enrichment',
+                    async () => await enrichBusinessData(foundBusinesses)
+                );
+                
+                if (!enrichResult) return;
+
+                // Export results
+                await executeTask(
+                    'Export Leads',
+                    async () => await exportBusinessData(foundBusinesses)
+                );
+                
+            } catch (error) {
+                console.error('Agent error:', error);
+                addActivityLog(`Agent failed: ${error.message}`, 'error');
+                showNotification(error.message, 'error');
+            }
+        }
+
+        // New function to update progress steps
+        function updateProgressStep(step) {
+            const steps = {
+                'search': 1,
+                'websites': 2,
+                'enrich': 3,
+                'export': 4
+            };
+            
+            const stepNumber = steps[step] || 1;
+            
+            // Update progress bar
+            progress = (stepNumber / 4) * 100;
+            
+            // Update step indicators
+            document.querySelectorAll('.progress-step').forEach((el, index) => {
+                if (index + 1 < stepNumber) {
+                    el.classList.add('step-completed');
+                    el.classList.remove('step-active');
+                } else if (index + 1 === stepNumber) {
+                    el.classList.add('step-active');
+                    el.classList.remove('step-completed');
+                } else {
+                    el.classList.remove('step-active', 'step-completed');
+                }
+            });
+        }
+
+        // Filter functions
+        function applyFilters() {
+            const regionFilter = document.getElementById('region-filter').value;
+            const industryFilter = document.getElementById('industry-filter').value;
+            const websiteFilter = document.getElementById('website-filter').value;
+
+            const filteredBusinesses = foundBusinesses.filter(business => {
+                const regionMatch = !regionFilter || business.region === regionFilter;
+                const industryMatch = !industryFilter || business.industry === industryFilter;
+                const websiteMatch = !websiteFilter || 
+                    (websiteFilter === 'yes' && business.hasWebsite) || 
+                    (websiteFilter === 'no' && !business.hasWebsite);
+                
+                return regionMatch && industryMatch && websiteMatch;
+            });
+
+            updateResultsTable(filteredBusinesses);
+        }
+
+        // Add event listeners for filters
+        document.getElementById('region-filter').addEventListener('change', applyFilters);
+        document.getElementById('industry-filter').addEventListener('change', applyFilters);
+        document.getElementById('website-filter').addEventListener('change', applyFilters);
+
+        // Form submission
+        document.getElementById('task-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!isRunning) {
+                startAgent();
+            } else {
+                stopAgent();
+            }
+        });
+
+        function stopAgent() {
+            isRunning = false;
+            updateUI();
+            addActivityLog('Agent stopped by user', 'warning');
+        }
+
+        function updateUI() {
+            const button = document.querySelector('#task-form button');
+            button.textContent = isRunning ? 'Stop AI Agent' : 'Start AI Agent';
+            button.className = isRunning 
+                ? 'w-full bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'
+                : 'w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500';
+            
+            document.getElementById('status-indicator').innerHTML = isRunning
+                ? '<span class="h-3 w-3 bg-green-400 rounded-full mr-2 animate-pulse"></span><span class="text-sm text-gray-600">Running</span>'
+                : '<span class="h-3 w-3 bg-gray-400 rounded-full mr-2"></span><span class="text-sm text-gray-600">Idle</span>';
+            
+            document.getElementById('progress-text').textContent = `Progress: ${progress}/${totalTasks}`;
+            document.getElementById('progress-bar').style.width = `${(progress/totalTasks) * 100}%`;
+        }
+
+        function addActivityLog(message, type = 'info') {
+            const feed = document.getElementById('activity-feed');
+            const time = new Date().toLocaleTimeString();
+            const iconClass = {
+                info: 'fas fa-info-circle text-blue-500',
+                success: 'fas fa-check-circle text-green-500',
+                warning: 'fas fa-exclamation-triangle text-yellow-500',
+                error: 'fas fa-times-circle text-red-500'
+            }[type];
+
+            const logItem = document.createElement('div');
+            logItem.className = 'flex items-start space-x-3 p-3 bg-gray-50 rounded-lg';
+            logItem.innerHTML = `
+                <i class="${iconClass}"></i>
+                <div class="flex-1">
+                    <p class="text-sm text-gray-600">${message}</p>
+                    <span class="text-xs text-gray-400">${time}</span>
+                </div>
+            `;
+
+            feed.insertBefore(logItem, feed.firstChild);
+        }
+
+        function addBusinessResult(business) {
+            const tbody = document.getElementById('results-body');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">${business.name}</div>
+                    <div class="text-sm text-gray-500">${business.address}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        ${business.industry}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${business.region}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${business.phone}</div>
+                    <div class="text-sm text-gray-500">${business.email || 'No email'}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${business.hasWebsite ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                        ${business.hasWebsite ? 'Has Website' : 'No Website'}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button onclick='addToLeads(${JSON.stringify(business)})' class="text-blue-600 hover:text-blue-900 mr-3">
+                        Add to Leads
+                    </button>
+                    <button onclick='previewEmail(${JSON.stringify(business)})' class="text-green-600 hover:text-green-900">
+                        Preview Email
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        function exportResults() {
+            if (foundBusinesses.length === 0) {
+                Swal.fire({
+                    title: 'No Results',
+                    text: 'No businesses to export',
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            const csvContent = "data:text/csv;charset=utf-8," 
+                + "Business Name,Industry,Region,Address,Phone,Email,Website Status,Discovery Date\n"
+                + foundBusinesses.map(b => 
+                    `"${b.name}","${b.industry}","${b.region}","${b.address}","${b.phone}","${b.email || ''}","${b.hasWebsite ? 'Has Website' : 'No Website'}","${b.discoveryDate}"`
+                ).join("\n");
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `discovered_businesses_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            addActivityLog('Exported results to CSV', 'success');
+        }
+
+        function addToLeads(business) {
+            const leads = JSON.parse(localStorage.getItem('leads') || '[]');
+            
+            if (!leads.some(lead => lead.name === business.name)) {
+                leads.push({
+                    name: business.name,
+                    email: business.email || '',
+                    phone: business.phone || '',
+                    address: business.address,
+                    type: business.industry,
+                    status: 'New',
+                    notes: '',
+                    dateAdded: new Date().toISOString()
+                });
+                
+                localStorage.setItem('leads', JSON.stringify(leads));
+                
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Business added to leads',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+            } else {
+                Swal.fire({
+                    title: 'Already Added',
+                    text: 'This business is already in your leads',
+                    icon: 'info',
+                    confirmButtonText: 'OK'
+                });
+            }
+        }
+
+        function previewEmail(business) {
+            // This function should be implemented to match your email preview functionality
+            console.log('Preview email for:', business);
+        }
+
+        // Natural Language Processing
+        function processNaturalCommand() {
+            const input = document.getElementById('nl-input').value.toLowerCase();
+            
+            if (input.includes('find') || input.includes('search')) {
+                // Extract location and business type
+                const locationMatch = input.match(/in ([a-zA-Z\s]+)(?=\s|$)/);
+                const location = locationMatch ? locationMatch[1] : '';
+                
+                const businessTypes = ['restaurant', 'gym', 'salon', 'retail'];
+                const type = businessTypes.find(type => input.includes(type)) || '';
+                
+                if (location) {
+                    document.getElementById('region').value = location;
+                    if (type) {
+                        document.getElementById('industry').value = type;
+                    }
+                    startSearch();
+                } else {
+                    showNotification('Please specify a location in your command', 'error');
+                }
+            } else if (input.includes('export')) {
+                if (input.includes('excel')) {
+                    exportAs('excel');
+                } else if (input.includes('json')) {
+                    exportAs('json');
+                } else {
+                    exportAs('csv');
+                }
+            }
+            
+            // Clear input after processing
+            document.getElementById('nl-input').value = '';
+        }
+
+        // Export Functions
+        function toggleExportMenu() {
+            const menu = document.getElementById('export-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        function exportAs(format) {
+            if (foundBusinesses.length === 0) {
+                showNotification('No data to export', 'error');
+                return;
+            }
+
+            switch (format) {
+                case 'csv':
+                    exportResults();
+                    break;
+                case 'excel':
+                    exportToExcel();
+                    break;
+                case 'json':
+                    exportToJSON();
+                    break;
+            }
+            
+            toggleExportMenu();
+        }
+
+        function exportToExcel() {
+            const ws = XLSX.utils.json_to_sheet(foundBusinesses);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Businesses");
+            XLSX.writeFile(wb, "business_leads.xlsx");
+            showNotification('Data exported to Excel successfully!');
+        }
+
+        function exportToJSON() {
+            const jsonStr = JSON.stringify(foundBusinesses, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'business_leads.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showNotification('Data exported to JSON successfully!');
+        }
+
+        // Settings Functions
+        function openSettings() {
+            document.getElementById('settings-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').classList.add('hidden');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+
+        function saveSettings() {
+            // Save settings to localStorage
+            const settings = {
+                googleApiKey: document.getElementById('google-api-key').value,
+                yelpApiKey: document.getElementById('yelp-api-key').value,
+                searchRadius: document.getElementById('search-radius').value,
+                resultsPerPage: document.getElementById('results-per-page').value
+            };
+            localStorage.setItem('aiAgentSettings', JSON.stringify(settings));
+            closeSettings(); // Close the modal after saving
+        }
+
+        // Load settings on startup
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('aiAgentSettings') || '{}');
+            if (settings.googleApiKey) document.getElementById('google-api-key').value = settings.googleApiKey;
+            if (settings.yelpApiKey) document.getElementById('yelp-api-key').value = settings.yelpApiKey;
+            if (settings.searchRadius) document.getElementById('search-radius').value = settings.searchRadius;
+            if (settings.resultsPerPage) document.getElementById('results-per-page').value = settings.resultsPerPage;
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+            // Close export menu when clicking outside
+            document.addEventListener('click', function(e) {
+                const exportMenu = document.getElementById('export-menu');
+                if (!e.target.closest('#export-menu') && !e.target.closest('button[onclick="toggleExportMenu()"]')) {
+                    exportMenu.classList.add('hidden');
+                }
+            });
+        });
+
+        // Initialize tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            tippy('[data-tippy-content]', {
+                theme: 'light',
+                placement: 'bottom'
+            });
+        });
+
+        // Toggle info section
+        function toggleInfo() {
+            const infoSection = document.getElementById('info-section');
+            infoSection.classList.toggle('hidden');
+        }
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Add responsive handling for mobile
+        function handleResize() {
+            const isMobile = window.innerWidth <= 768;
+            const filterControls = document.querySelector('.filter-controls');
+            if (filterControls) {
+                filterControls.classList.toggle('flex-wrap', isMobile);
+            }
+        }
+
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Initial check
+    </script>
+
+    <style>
+        .progress-step {
+            position: relative;
+        }
+        .progress-step::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: #e5e5eb;
+            top: 50%;
+            left: 50%;
+            transform: translateY(-50%);
+            z-index: -1;
+        }
+        .progress-step:last-child::after {
+            display: none;
+        }
+        .step-active .step-indicator {
+            background-color: #2563eb;
+            color: white;
+        }
+        .step-completed .step-indicator {
+            background-color: #059669;
+            color: white;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .grid-cols-2 {
+                grid-template-columns: 1fr;
+            }
+            .lg\:col-span-2 {
+                grid-column: span 1;
+            }
+            .space-x-4 {
+                gap: 0.5rem;
+            }
+            .flex-wrap {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            z-index: 50;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Card hover effects */
+        .hover-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .hover-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Chat input styles */
+        .chat-input {
+            border: 2px solid #e5e7eb;
+            transition: border-color 0.2s;
+        }
+        .chat-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.hidden {
+            display: none;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            width: 100%;
+            max-width: 32rem;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <!-- Header with collapsible info section -->
+        <header class="bg-white shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-robot text-blue-600 text-3xl mr-3"></i>
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900">AI Agent Sam</h1>
+                            <p class="text-sm text-gray-500">Your Automated Lead Generation Assistant</p>
+                        </div>
+                    </div>
+                    <button onclick="toggleInfo()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-info-circle text-xl"></i>
+                    </button>
+                    <button onclick="openSettings()" 
+                        class="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200"
+                        data-tippy-content="Configure API keys and settings">
+                        <i class="fas fa-cog mr-2"></i>
+                        Settings
+                    </button>
+                </div>
+                <div id="info-section" class="hidden mt-4 p-4 bg-blue-50 rounded-lg">
+                    <h3 class="font-semibold mb-2">How to use AI Agent Sam:</h3>
+                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                        <li>Configure your search parameters in the Task Configuration panel</li>
+                        <li>Use the quick action buttons for common tasks</li>
+                        <li>Monitor progress in the Activity Feed</li>
+                        <li>Filter and export your results as needed</li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Natural Language Input -->
+            <div class="mb-8">
+                <div class="bg-white rounded-lg shadow-lg p-6 hover-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold">Natural Language Command</h2>
+                        <div class="text-sm text-gray-500">Type your request in plain English</div>
+                    </div>
+                    <div class="flex space-x-4">
+                        <input type="text" id="nl-input" 
+                            class="chat-input flex-1 px-4 py-2 rounded-lg"
+                            placeholder="Try: 'Find restaurants in Chicago without websites' or 'Export leads as Excel'"
+                            data-tippy-content="Type your command in natural language">
+                        <button onclick="processNaturalCommand()" 
+                            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                            <i class="fas fa-paper-plane mr-2"></i>Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Task Configuration -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-lg p-6 hover-card">
+                        <h2 class="text-lg font-semibold mb-4">Task Configuration</h2>
+                        
+                        <!-- Quick Action Buttons -->
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <button 
+                                onclick="startSearch()" 
+                                class="flex items-center justify-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200"
+                                data-tippy-content="Start searching for businesses in your specified region">
+                                <i class="fas fa-search mr-2"></i>
+                                Search Businesses
+                            </button>
+                            <button 
+                                onclick="checkWebsites()" 
+                                class="flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors duration-200"
+                                data-tippy-content="Check if found businesses have websites">
+                                <i class="fas fa-globe mr-2"></i>
+                                Check Websites
+                            </button>
+                            <button 
+                                onclick="enrichData()" 
+                                class="flex items-center justify-center bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors duration-200"
+                                data-tippy-content="Find additional contact information for businesses">
+                                <i class="fas fa-database mr-2"></i>
+                                Enrich Data
+                            </button>
+                            <button 
+                                onclick="exportLeads()" 
+                                class="flex items-center justify-center bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-700 transition-colors duration-200"
+                                data-tippy-content="Export your leads to CSV format">
+                                <i class="fas fa-file-export mr-2"></i>
+                                Export Leads
+                            </button>
+                        </div>
+
+                        <form id="task-form" class="space-y-4">
+                            <!-- Region Input -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Region</label>
+                                <input type="text" id="region" placeholder="City, State, or Country" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+
+                            <!-- Industry Selection -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Industry</label>
+                                <select id="industry" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Select Industry</option>
+                                    <option value="restaurant">Restaurants</option>
+                                    <option value="retail">Retail</option>
+                                    <option value="healthcare">Healthcare</option>
+                                    <option value="technology">Technology</option>
+                                    <option value="professional">Professional Services</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+
+                            <!-- Keywords Input -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Keywords</label>
+                                <input type="text" id="keywords" placeholder="Enter search keywords" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                <p class="mt-1 text-sm text-gray-500">Separate multiple keywords with commas</p>
+                            </div>
+
+                            <!-- Progress Tracker -->
+                            <div class="mt-6">
+                                <h3 class="text-sm font-medium text-gray-700 mb-3">Progress</h3>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex-1 flex items-center">
+                                        <div class="progress-step step-active">
+                                            <div class="step-indicator w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white">1</div>
+                                            <span class="text-xs mt-1">Searching</span>
+                                        </div>
+                                        <div class="progress-step">
+                                            <div class="step-indicator w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">2</div>
+                                            <span class="text-xs mt-1">Verifying</span>
+                                        </div>
+                                        <div class="progress-step">
+                                            <div class="step-indicator w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">3</div>
+                                            <span class="text-xs mt-1">Enriching</span>
+                                        </div>
+                                        <div class="progress-step">
+                                            <div class="step-indicator w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">4</div>
+                                            <span class="text-xs mt-1">Complete</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Start AI Agent
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Activity Feed -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow-lg p-6 hover-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-lg font-semibold">Activity Feed</h2>
+                            <div class="flex items-center space-x-2">
+                                <span id="progress-text" class="text-sm text-gray-600">Progress: 0/0</span>
+                                <div class="h-2 w-40 bg-gray-200 rounded-full">
+                                    <div id="progress-bar" class="h-2 bg-blue-600 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="activity-feed" class="space-y-4 max-h-[600px] overflow-y-auto">
+                            <!-- Activity items will be added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section with Enhanced Export -->
+            <div class="mt-8">
+                <div class="bg-white rounded-lg shadow-lg p-6 hover-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold">Found Businesses</h2>
+                        <div class="flex space-x-4">
+                            <!-- Export Options Dropdown -->
+                            <div class="relative">
+                                <button onclick="toggleExportMenu()" 
+                                    class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 flex items-center"
+                                    data-tippy-content="Export your data in different formats">
+                                    <i class="fas fa-download mr-2"></i>
+                                    Export As
+                                    <i class="fas fa-chevron-down ml-2"></i>
+                                </button>
+                                <div id="export-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                                    <div class="py-1">
+                                        <button onclick="exportAs('csv')" class="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                                            <i class="fas fa-file-csv mr-2"></i>CSV
+                                        </button>
+                                        <button onclick="exportAs('excel')" class="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                                            <i class="fas fa-file-excel mr-2"></i>Excel
+                                        </button>
+                                        <button onclick="exportAs('json')" class="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                                            <i class="fas fa-file-code mr-2"></i>JSON
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Filter Controls -->
+                            <select id="region-filter" class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">All Regions</option>
+                            </select>
+                            <select id="industry-filter" class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">All Industries</option>
+                            </select>
+                            <select id="website-filter" class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">All Website Status</option>
+                                <option value="yes">Has Website</option>
+                                <option value="no">No Website</option>
+                            </select>
+                            <button onclick="exportResults()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
+                                <i class="fas fa-download mr-2"></i> Export Results
+                            </button>
+                        </div>
+                    </div>
+                    <div id="results-table" class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Business Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Industry</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Region</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Info</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Website Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="results-body">
+                                <!-- Results will be added here dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Modal -->
+            <div id="settings-modal" class="modal hidden">
+                <div class="modal-content">
+                    <button onclick="closeSettings()" 
+                        class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none p-2"
+                        aria-label="Close settings">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                    <div class="pt-2">
+                        <h2 class="text-2xl font-bold">Settings</h2>
+                    </div>
+                    <div class="space-y-6 mt-4">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">API Configuration</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Google Places API Key</label>
+                                    <input type="password" id="google-api-key" class="w-full px-3 py-2 border rounded-md">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Yelp API Key</label>
+                                    <input type="password" id="yelp-api-key" class="w-full px-3 py-2 border rounded-md">
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">Search Parameters</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Search Radius (miles)</label>
+                                    <input type="number" id="search-radius" class="w-full px-3 py-2 border rounded-md" value="10">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Results Per Page</label>
+                                    <input type="number" id="results-per-page" class="w-full px-3 py-2 border rounded-md" value="50">
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="saveSettings()" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">
+                            Save Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+</body>
+</html>

@@ -1,3 +1,65 @@
+// Main Application Module
+const App = {
+    modules: {
+        UI: null,
+        Templates: null,
+        EmailTemplates: null,
+        Agent: null,
+        Chat: null,
+        API: null
+    },
+
+    async init() {
+        console.log('Initializing application...');
+        
+        try {
+            // Initialize core modules first
+            this.modules.API = window.API;
+            this.modules.UI = window.UI;
+            
+            // Initialize feature modules
+            if (window.Templates) this.modules.Templates = window.Templates;
+            if (window.EmailTemplates) this.modules.EmailTemplates = window.EmailTemplates;
+            if (window.Agent) this.modules.Agent = window.Agent;
+            if (window.Chat) this.modules.Chat = window.Chat;
+            
+            // Wait for DOM to be ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => this.setup());
+            } else {
+                await this.setup();
+            }
+            
+            console.log('Application initialized successfully');
+        } catch (error) {
+            console.error('Failed to initialize application:', error);
+        }
+    },
+
+    async setup() {
+        console.log('Setting up application...');
+        
+        // Initialize UI first
+        if (this.modules.UI) {
+            console.log('Initializing UI...');
+            await this.modules.UI.init();
+        } else {
+            console.error('UI module not found');
+        }
+        
+        // Initialize other modules
+        for (const [name, module] of Object.entries(this.modules)) {
+            if (name !== 'UI' && module && typeof module.init === 'function') {
+                console.log(`Initializing ${name}...`);
+                await module.init();
+            }
+        }
+    }
+};
+
+// Initialize application
+App.init();
+
 // Tab switching functionality
 document.querySelectorAll('.tab-button').forEach(button => {
     button.addEventListener('click', () => {

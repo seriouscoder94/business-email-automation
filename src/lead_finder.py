@@ -209,3 +209,21 @@ class LeadFinder:
                 return [lead for lead in leads if not lead.get('contacted', False)]
         except (FileNotFoundError, json.JSONDecodeError):
             return []
+
+    def delete_lead(self, lead_id):
+        """Delete a lead by ID."""
+        try:
+            # Find the lead
+            lead_index = next((i for i, lead in enumerate(self.leads) if lead['id'] == lead_id), -1)
+            
+            if lead_index >= 0:
+                # Remove the lead
+                self.leads.pop(lead_index)
+                # Save changes
+                self._save_leads()
+                return True
+            return False
+            
+        except Exception as e:
+            print(f"Error deleting lead: {e}")
+            return False

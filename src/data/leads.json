@@ -16,50 +16,5 @@
     "location": "Atlanta, GA",
     "contacted": false,
     "created_at": "2025-01-03T04:09:00-05:00"
-  },
-  {
-    "id": "3",
-    "name": "cafe",
-    "email": "dailywork813@gmail.com",
-    "type": "restaurant",
-    "status": "contacted",
-    "found_date": "2025-01-03T04:20:04.431382",
-    "source": "manual"
-  },
-  {
-    "id": "4",
-    "name": "cafe",
-    "email": "dailywork813@gmail.com",
-    "type": "restaurant",
-    "status": "contacted",
-    "found_date": "2025-01-03T04:34:09.920326",
-    "source": "manual"
-  },
-  {
-    "id": "5",
-    "name": "j",
-    "email": "dailywork813@gmail.com",
-    "type": "restaurant",
-    "status": "contacted",
-    "found_date": "2025-01-03T04:35:38.904357",
-    "source": "manual"
-  },
-  {
-    "id": "6",
-    "name": "cafe",
-    "email": "dailywork813@gmail.com",
-    "type": "restaurant",
-    "status": "contacted",
-    "found_date": "2025-01-03T04:38:43.994289",
-    "source": "manual"
-  },
-  {
-    "id": "7",
-    "name": "aa",
-    "email": "dailywork813@gmail.com",
-    "type": "restaurant",
-    "status": "contacted",
-    "found_date": "2025-01-03T04:51:16.854189",
-    "source": "manual"
   }
 ]
