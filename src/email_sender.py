@@ -44,6 +44,31 @@ class EmailSender:
             raise ValueError("SENDGRID_API_KEY not found in environment variables")
         self.sg = SendGridAPIClient(self.api_key)
         self.from_email = Email('sam@webreachconnect.com', 'Sam from Web Reach Connect')
+        self.templates_file = os.path.join(os.path.dirname(__file__), 'data/email_templates.json')
+
+    def get_all_templates(self):
+        """Get all available email templates"""
+        try:
+            with open(self.templates_file, 'r') as f:
+                data = json.load(f)
+                return data.get('templates', []) + data.get('templates_with_website', [])
+        except Exception as e:
+            print(f"Error loading templates: {e}")
+            return []
+
+    def get_template(self, template_id):
+        """Get a specific template by ID"""
+        try:
+            with open(self.templates_file, 'r') as f:
+                data = json.load(f)
+                # Search in both template lists
+                for template in data.get('templates', []) + data.get('templates_with_website', []):
+                    if template['id'] == template_id:
+                        return template
+            return None
+        except Exception as e:
+            print(f"Error loading template: {e}")
+            return None
 
     def send_email(self, to_email, subject, content):
         """
@@ -101,14 +126,10 @@ class EmailSender:
                 plain_text_content=content
             )
             
-            response = self.sg.send(message)
-            print(f"Direct email sent to {to_email} with status code: {response.status_code}")
-            return True, "Email sent successfully"
-            
+            response = self.sg.client.mail.send.post(request_body=message.get())
+            return response.status_code in [200, 201, 202], "Email sent successfully"
         except Exception as e:
-            error_msg = f"Failed to send direct email: {str(e)}"
-            print(error_msg)
-            return False, error_msg
+            return False, str(e)
 
 @app.route('/leads')
 def lead_generation():

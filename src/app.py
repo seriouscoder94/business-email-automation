@@ -334,12 +334,24 @@ def send_email_api():
         data = request.json
         print("Received email request:", data)  # Debug log
         
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': 'No data received'
+            }), 400
+            
+        if not all(key in data for key in ['to', 'subject', 'content']):
+            return jsonify({
+                'success': False,
+                'error': 'Missing required fields: to, subject, content'
+            }), 400
+            
         # Initialize EmailSender
         email_sender = EmailSender()
         
         # Send email
         success, message = email_sender.send_email(
-            to_email=data['to_email'],
+            to_email=data['to'],
             subject=data['subject'],
             content=data['content']
         )
@@ -350,19 +362,19 @@ def send_email_api():
                 'message': message
             })
         else:
+            print(f"Failed to send email: {message}")  # Debug log
             return jsonify({
                 'success': False,
                 'error': message
             }), 500
-        
+            
     except Exception as e:
-        error_message = str(e)
-        print(f"Error sending email: {error_message}")
+        print(f"Error in send_email_api: {str(e)}")  # Debug log
         import traceback
-        print(f"Traceback: {traceback.format_exc()}")
+        print(f"Traceback: {traceback.format_exc()}")  # Debug log
         return jsonify({
             'success': False,
-            'error': error_message
+            'error': str(e)
         }), 500
 
 @app.route('/api/campaigns', methods=['GET'])
